@@ -53,18 +53,18 @@ In Stata, generate a data file with the table estimates in CSV format:
     app2_n, 147143
     app2_r2, 0.00
 
-The post-estimation command store_est_tpl generates this file
+The post-estimation command `store_est_tpl` generates this file
 automatically. Following an estimation, the command:
 
     store_est_tpl using table_data.csv, coef(treatment_comp) name(app1) all
 
 writes the top six lines to the above file for you. Note that the
-placeholder "beta" holds just the beta coefficient, while starbeta
+placeholder `beta` holds just the beta coefficient, while starbeta
 calculates a p-value and shows stars for p<0.1, p<0.05,
 p<0.01. e.g. `beta` contains `0.06`, and `starbeta` contains `0.06**`.
 
 `store_est_tpl` takes an optional `format()` parameter that lets you
-specify a different format for the beta and standard error
+specify a different format for the coefficient and standard error
 (e.g. `"%5.2f"` -- the default is 3 decimal points).  p-values and r2
 always have 2 decimal points.
 
@@ -81,26 +81,24 @@ coefficients, you can store an arbitrary string using:
 
 ### Step 3
 
-Finally, the table_from_tpl command calls a python program that
-transfers the estimates into the latex template:
+Finally, use `table_from_tpl` to transfer the estimates into the LaTeX
+template (via Python):
 
     table_from_tpl, t(two_panel.tex) r(table_data.csv) o(output_table.tex)
 
-t = template file
-r = replacement data file
-o = output file
+t = template file, r = replacement data file, o = output file
 
-The easiest way to see how this works may be to work through the
-example file table_tpl.do and two_panel.tex that creates a contrived
-two panel output table from a system dataset.
+The easiest way to get this running may be to work through the example
+files `table_tpl.do` and `two_panel.tex` which create a contrived two
+panel output table from a system dataset.
 
-## Limitations
+## LIMITATIONS
 
-Unlike outreg, estout, etc., you can't add and remove columns from
+- Unlike `outreg`, `estout`, etc., you can't add and remove columns from
 these tables without modifying the LaTeX template. This is an inherent
 limitation of having a totally customizable table template.
 
-If a placeholder appears multiple times in the output file, the first
+- If a placeholder appears multiple times in the output file, the first
 appearance will be used.  So you need to delete the output file each
 time you generate data. (It would probably be better to use the last
 appearance, then you could just keep adding to the same estimate data
