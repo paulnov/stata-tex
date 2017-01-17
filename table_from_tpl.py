@@ -8,13 +8,13 @@ def parse_options():
     
     # require an input file
     parser.add_option('-t', '--tpl-path', dest='tpl_path',
-                      help='path to template file', metavar='~/tpl/table.tex')
+                      help='path to template file', metavar='templates/table.tex')
     
     parser.add_option('-o', '--out-path', dest='output_path',
-                      help='path to output file', metavar='~/iec/output/dise/table.tex')
+                      help='path to output file', metavar='output/table.tex')
 
     parser.add_option('-r', '--repl-path', dest='replace_path',
-                      help='path to string replacement file', metavar='/scratch/pn/replacements.csv')
+                      help='path to string replacement file', metavar='~/foo/replacements.csv')
 
     # parse command line
     (options, args) = parser.parse_args()

@@ -65,7 +65,7 @@ prog def table_from_tpl
 {
   syntax, Template(string) Replacement(string) Output(string)
 
-  shell python ~/iecmerge/include/py/table_from_tpl.py -t `template' -r `replacement' -o `output'
+  shell python table_from_tpl.py -t `template' -r `replacement' -o `output'
 }
 end
 /* *********** END program table_from_tpl ***************************************** */

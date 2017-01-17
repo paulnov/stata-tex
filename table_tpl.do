@@ -1,4 +1,4 @@
-do ~/iecmerge/include/stata-tex/stata-tex.do
+do stata-tex.do
 
 /* create a simple two panel table */
 sysuse auto, clear
@@ -26,6 +26,7 @@ foreach v in mpg weight {
 cat `data'
 
 /* create table */
-table_from_tpl, t(~/iecmerge/include/stata-tex/two_panel.tex) r(`data') o($tmp/output_table.tex)
+table_from_tpl, t(two_panel.tex) r(`data') o(output_table.tex)
 
-cat $tmp/output_table.tex
+/* show the result */
+cat output_table.tex
