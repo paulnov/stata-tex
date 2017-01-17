@@ -1,4 +1,5 @@
-# stata-tex A set of tools to make it easier to create complicated LaTeX tables from Stata
+# stata-tex 
+A set of tools to make it easier to create complicated LaTeX tables from Stata
 
 It's often necessary to produce an output table that doesn't fit any
 of the format provided by the standard tools outreg, esttab, etc..
