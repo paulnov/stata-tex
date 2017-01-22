@@ -108,4 +108,8 @@ file.)
 
 The default configuration requires the .do file and .py in the current
 directory. To set a different path to the python file, set a path to
-the Python file in the `table_from_tpl` program in `stata-tex.do`.
+the Python file in the `table_from_tpl` program in `stata-tex.do`. On
+our server, we have hardcoded paths to where these files reside in the
+programs themselves, so that they do not have to be in the current
+folder of every project.
+
