@@ -65,7 +65,25 @@ prog def table_from_tpl
 {
   syntax, Template(string) Replacement(string) Output(string)
 
-  shell python table_from_tpl.py -t `template' -r `replacement' -o `output'
+  /* if python path is not set, use current folder */
+  if mi("$PYTHONPATH") {
+
+      /* set path to current folder */
+      local path .
+  }
+  else {
+      local path $PYTHONPATH
+  }
+
+  /* check python file existence */
+  cap confirm file `path'/table_from_tpl.py
+  if _rc {
+      display as error "ERROR: table_from_tpl.py not found. Put in current folder or folder defined by global \$PYTHONPATH"
+      error -1
+  }
+  
+  shell python `path'/table_from_tpl.py -t `template' -r `replacement' -o `output'
+  display "Created `output'."
 }
 end
 /* *********** END program table_from_tpl ***************************************** */
