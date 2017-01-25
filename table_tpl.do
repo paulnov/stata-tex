@@ -12,7 +12,6 @@ gen price_q4 = price > `r(p75)' & !mi(price)
 
 /* regress mpg on price by quartile, and weight on price by quartile */
 tempfile data
-local data $tmp/foo
 
 eststo clear
 foreach v in mpg weight {
