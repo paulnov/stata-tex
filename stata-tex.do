@@ -63,8 +63,17 @@ end
 cap prog drop table_from_tpl
 prog def table_from_tpl
 {
-  syntax, Template(string) Replacement(string) Output(string)
+  syntax, Template(string) Replacement(string) Output(string) [Verbose]
 
+  /* set up verbose flag */
+  if !mi("`verbose'") {
+      local v "-v"
+  }
+  else {
+      local v
+  }
+  
+  
   /* if python path is not set, use current folder */
   if mi("$PYTHONPATH") {
 
@@ -81,8 +90,13 @@ prog def table_from_tpl
       display as error "ERROR: table_from_tpl.py not found. Put in current folder or folder defined by global \$PYTHONPATH"
       error -1
   }
+
+  local pycommand `path'/table_from_tpl.py -t `template' -r `replacement' -o `output' `v'
+  if !mi("`verbose'") {
+      di `"Running `pycommand' "'
+  }
   
-  shell python `path'/table_from_tpl.py -t `template' -r `replacement' -o `output'
+  shell python `pycommand'
   display "Created `output'."
 }
 end

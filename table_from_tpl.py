@@ -16,6 +16,8 @@ def parse_options():
     parser.add_option('-r', '--repl-path', dest='replace_path',
                       help='path to string replacement file', metavar='~/foo/replacements.csv')
 
+    parser.add_option("-v", action="store_true", dest="verbose")
+
     # parse command line
     (options, args) = parser.parse_args()
     
@@ -29,18 +31,38 @@ def parse_options():
 options = parse_options()
 
 # read template file into a string
+if options.verbose:
+    print "Reading template %s..." % (os.path.expanduser(options.tpl_path))
+
 with open (os.path.expanduser(options.tpl_path), "r") as tpl_file:
     tpl_lines = tpl_file.read()
+    if options.verbose: print "Success."
 
 # go over replacement file line by line
+if options.verbose:
+    print "Reading replacement file %s..." % (os.path.expanduser(options.replace_path))
+
 with open(os.path.expanduser(options.replace_path), "r") as f:
     replacements = f.readlines()
+    if options.verbose: print "Success."
 
+# loop over replacement line
 for line in replacements:
     (token, value) = line.split(",")
 
     tpl_lines = tpl_lines.replace("$$%s$$" % (token), value.strip())
 
+# write output path
+if options.verbose:
+    print "Writing output file %s..." % (os.path.expanduser(options.output_path))
 with open (os.path.expanduser(options.output_path), "w") as output_file:
     output_file.write(tpl_lines)
 
+# check existence of output file
+ofile = os.path.expanduser(options.output_path)
+if options.verbose:
+    if os.path.isfile(ofile): print "Output file exists."
+    print "Contents of %s: " % (ofile)
+    with open(ofile, 'r') as outfile:
+        for line in outfile:
+            print line
