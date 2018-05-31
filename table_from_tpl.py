@@ -1,4 +1,5 @@
 import os
+import sys
 from optparse import OptionParser
 
 def parse_options():
@@ -16,7 +17,7 @@ def parse_options():
     parser.add_option('-r', '--repl-path', dest='replace_path',
                       help='path to string replacement file', metavar='~/foo/replacements.csv')
 
-    parser.add_option("-v", action="store_true", dest="verbose")
+    parser.add_option("-v", action="store_true", dest="verbose", help='verbose mode')
 
     # parse command line
     (options, args) = parser.parse_args()
@@ -60,8 +61,9 @@ with open (os.path.expanduser(options.output_path), "w") as output_file:
 
 # check existence of output file
 ofile = os.path.expanduser(options.output_path)
+if os.path.isfile(ofile): print "Created tex file %s." % (ofile)
+
 if options.verbose:
-    if os.path.isfile(ofile): print "Output file exists."
     print "Contents of %s: " % (ofile)
     with open(ofile, 'r') as outfile:
         for line in outfile:

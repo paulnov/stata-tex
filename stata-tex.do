@@ -57,6 +57,31 @@ prog def store_est_tpl
 end
 /* *********** END program store_est_tpl ***************************************** */
 
+/*************************************************************************************/
+/* program store_val_tpl : store value to a file with string and format              */
+/*************************************************************************************/
+cap prog drop store_val_tpl
+prog def store_val_tpl
+{
+  syntax using/,  Name(string) Value(string) [Format(string)]
+
+  /* set default format if not specified */
+  if mi("`format'") local format "%6.3f"
+
+  /* get value in appropriate format (unless it's already a string) */
+  if !mi(real("`value'")) {
+    local v : di `format' `value'
+  }
+  else {
+    local v `value'
+  }
+
+  /* write line to file */
+  append_to_file using `using', s("`name',`v'")
+}
+end
+/* *********** END program store_val_tpl ***************************************** */
+
 /***************************************************************************************************/
 /* program table_from_tpl : Create a table from a stored estimates file and a .tex table template  */
 /***************************************************************************************************/
@@ -97,7 +122,14 @@ prog def table_from_tpl
   }
   
   shell python `pycommand'
-  display "Created `output'."
+  cap confirm filename `output'
+  if !_rc {
+    display "Created `output'."
+  }
+  else {
+    display "Could not create `output'."
+    error 1
+  }      
 }
 end
 /* *********** END program table_from_tpl ***************************************** */
