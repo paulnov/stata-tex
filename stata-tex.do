@@ -122,7 +122,7 @@ prog def table_from_tpl
   }
   
   shell python `pycommand'
-  cap confirm filename `output'
+  cap confirm file `output'
   if !_rc {
     display "Created `output'."
   }

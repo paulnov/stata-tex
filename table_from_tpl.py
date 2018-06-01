@@ -33,19 +33,19 @@ options = parse_options()
 
 # read template file into a string
 if options.verbose:
-    print "Reading template %s..." % (os.path.expanduser(options.tpl_path))
+    print("Reading template %s..." % (os.path.expanduser(options.tpl_path)))
 
 with open (os.path.expanduser(options.tpl_path), "r") as tpl_file:
     tpl_lines = tpl_file.read()
-    if options.verbose: print "Success."
+    if options.verbose: print("Success.")
 
 # go over replacement file line by line
 if options.verbose:
-    print "Reading replacement file %s..." % (os.path.expanduser(options.replace_path))
+    print("Reading replacement file %s..." % (os.path.expanduser(options.replace_path)))
 
 with open(os.path.expanduser(options.replace_path), "r") as f:
     replacements = f.readlines()
-    if options.verbose: print "Success."
+    if options.verbose: print("Success.")
 
 # loop over replacement line
 for line in replacements:
@@ -55,16 +55,16 @@ for line in replacements:
 
 # write output path
 if options.verbose:
-    print "Writing output file %s..." % (os.path.expanduser(options.output_path))
+    print("Writing output file %s..." % (os.path.expanduser(options.output_path)))
 with open (os.path.expanduser(options.output_path), "w") as output_file:
     output_file.write(tpl_lines)
 
 # check existence of output file
 ofile = os.path.expanduser(options.output_path)
-if os.path.isfile(ofile): print "Created tex file %s." % (ofile)
+if os.path.isfile(ofile): print("Created tex file %s." % (ofile))
 
 if options.verbose:
-    print "Contents of %s: " % (ofile)
+    print("Contents of %s: " % (ofile))
     with open(ofile, 'r') as outfile:
         for line in outfile:
-            print line
+            print(line)

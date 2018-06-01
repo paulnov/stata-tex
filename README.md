@@ -109,4 +109,5 @@ file.)
 table_from_tpl() needs to find table_from_tpl.py either in the current
 folder, or in the folder specified by the global $PYTHONPATH.
 
-**Requires Python 2.7**
+This has been tested most thoroughly with Python 2.7. If you encounter
+difficulties with other versions of Python, please let me know.
