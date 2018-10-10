@@ -77,9 +77,11 @@ you choose exactly what estimation statistics you want to
 output. Outputting statistics you don't use is fine, so `all` is
 usually the right answer.
 
-If you want to store some other value in this file, e.g. a p-value
-from an F test or significance test for a difference between two
-coefficients, you can store an arbitrary string using:
+You can run `store_est_tpl` multiple times following a single
+estimation if you want to store multiple coefficients.  If you want to
+store some other value in this file, e.g. a p-value from an F test or
+significance test for a difference between two coefficients, you can
+store an arbitrary string using:
 
     append_to_file using sample_table.csv, s("treatment2_ftest, 0.35")
 
