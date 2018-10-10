@@ -17,6 +17,12 @@ def parse_options():
     parser.add_option('-r', '--repl-path', dest='replace_path',
                       help='path to string replacement file', metavar='~/foo/replacements.csv')
 
+    parser.add_option('-s', '--add-stars', dest='add_stars', action="store_true", 
+                      help='adds stars by replacing beta with starbeta')
+
+    parser.add_option('-d', '--drop-stars', dest='drop_stars', action="store_true", 
+                      help='removes stars by replacing starbeta with beta')
+
     parser.add_option("-v", action="store_true", dest="verbose", help='verbose mode')
 
     # parse command line
@@ -38,6 +44,18 @@ if options.verbose:
 with open (os.path.expanduser(options.tpl_path), "r") as tpl_file:
     tpl_lines = tpl_file.read()
     if options.verbose: print("Success.")
+
+# if stars added or suppressed, then replace beta with starbeta or viceversa
+if options.add_stars:
+
+    # two lines so starbeta doesn't turn into starstarbeta
+    tpl_lines = tpl_lines.replace("beta$$", "starbeta$$")
+    tpl_lines = tpl_lines.replace("_starstarbeta$$", "_starbeta$$")
+    
+elif options.drop_stars:
+
+    # add $$ suffix since we don't want to turn starbeta -> starstarbeta
+    tpl_lines = tpl_lines.replace("starbeta$$", "beta$$")
 
 # go over replacement file line by line
 if options.verbose:

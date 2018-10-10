@@ -88,7 +88,7 @@ end
 cap prog drop table_from_tpl
 prog def table_from_tpl
 {
-  syntax, Template(string) Replacement(string) Output(string) [Verbose]
+  syntax, Template(string) Replacement(string) Output(string) [Verbose addstars dropstars]
 
   /* set up verbose flag */
   if !mi("`verbose'") {
@@ -116,11 +116,19 @@ prog def table_from_tpl
       error -1
   }
 
-  local pycommand `path'/table_from_tpl.py -t `template' -r `replacement' -o `output' `v'
+  /* deal with addstars/dropstars parameters */
+  if "`addstars'" == "addstars" {
+    local star_param "--add-stars"
+  }
+  if "`dropstars'" == "dropstars" {
+    local star_param "--drop-stars"
+  }  
+  
+  local pycommand `path'/table_from_tpl.py -t `template' -r `replacement' -o `output' `v' `star_param'
   if !mi("`verbose'") {
       di `"Running `pycommand' "'
   }
-  
+
   shell python `pycommand'
   cap confirm file `output'
   if !_rc {
@@ -129,7 +137,12 @@ prog def table_from_tpl
   else {
     display "Could not create `output'."
     error 1
-  }      
+  }
+
+  /* clean up the temporary file if star/nostar specified */
+  if !mi("`stars'") {
+    !rm $tmp/tpl_sed_tmp.tex
+  }
 }
 end
 /* *********** END program table_from_tpl ***************************************** */

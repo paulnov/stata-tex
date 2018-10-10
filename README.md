@@ -13,12 +13,18 @@ table data. This lets you set up and compile exactly the LaTeX table
 you want, with placeholders for the data. Then you can generate the
 data separately, and transfer it into the LaTeX table automatically.
 
+It takes a bit of time to get right on the first time, but everyone on
+our team now loves this tool and relies on it for tables of any
+complexity. We find it far easier to just write the template we want
+rather than trying to figure out esoteric `estout` or `esttab`
+parameters.
+
 ### Advantages:
 - Arbitrary customization of Stata/LaTeX tables
 - Iterate on the LaTeX table without regenerating estimates
 - Stata code is much much cleaner
 - Can get LaTeX table looking right without using Stata
-- Easier to copy table templates to new contexts
+- Easy to copy table templates to new contexts
 
 ## HOW TO USE
 
@@ -28,39 +34,37 @@ Create a latex table, with placeholders for all the numbers you want
 to put in later.  Placeholders are marked with $$, e.g. `$$beta1$$`.  So
 you create a regular latex table, with lines like this:
 
-    New Road & $$app1_beta$$ & $$app2_beta$$ \\ & $$app1_se$$ & $$app2_se$$ \\
+    Treatment           &     $$treatment1_starbeta$$  &     \textbf{$$treatment2_starbeta$$}  &     $$treatment3_starbeta$$  &     \textbf{$$treatment4_starbeta$$}  \\
+                        &     $$treatment1_se$$        &     \textbf{$$treatment2_se$$}        &     $$treatment3_se$$        &     \textbf{$$treatment4_se$$}        \\
 
-In this example, `app1` and `app2` are estimates from different
-regressions -- `app1_beta` is a placeholder for the regression estimate,
-and `app1_se` for the standard error.
+In this example, `treatment1` and `treatment2` are estimates from different
+regressions -- `treatment1_beta` is a placeholder for the first regression
+estimate, and `treatment1_se` for the standard error. Notice that estimates
+in the second and forth column are customized to be in bold face.
 
-Compile this table in LaTeX until satisfied with the format.
+Finish this table (i.e. with `tabular` etc.), until it compiles in
+LaTeX in the format you want.
 
 ### Step 2
 
-In Stata, generate a data file with the table estimates in CSV format:
+In Stata, use the post-estimation command `store_est_tpl` (included in
+the `stata-tex` package), to generate a CSV file with all the estimation results:
 
-    app1_p, 0.71
-    app1_beta, -0.000
-    app1_starbeta, -0.000
-    app1_se, 0.001
-    app1_n, 143998
-    app1_r2, 0.00
-    app2_p, 0.00
-    app2_beta, 0.009
-    app2_starbeta, 0.009***
-    app2_se, 0.001
-    app2_n, 147143
-    app2_r2, 0.00
+    reg mpg t [...]
+    store_est_tpl using sample_table.csv, coef(t) name(treatment2) all
 
-The post-estimation command `store_est_tpl` generates this file
-automatically. Following an estimation, the command:
+This will append a block to `sample_table.csv` containing the
+following lines (with example numbers):
 
-    store_est_tpl using table_data.csv, coef(treatment_comp) name(app1) all
+    treatment2_p, 0.00
+    treatment2_beta, 0.009
+    treatment2_starbeta, 0.009***
+    treatment2_se, 0.001
+    treatment2_n, 147143
+    treatment2_r2, 0.00
 
-writes the top six lines to the above file for you. Note that the
-placeholder `beta` holds just the beta coefficient, while starbeta
-calculates a p-value and shows stars for p<0.1, p<0.05,
+Note that the placeholder `beta` holds just the beta coefficient,
+while `starbeta` calculates a p-value and shows stars for p<0.1, p<0.05,
 p<0.01. e.g. `beta` contains `0.06`, and `starbeta` contains `0.06**`.
 
 `store_est_tpl` takes an optional `format()` parameter that lets you
@@ -77,20 +81,36 @@ If you want to store some other value in this file, e.g. a p-value
 from an F test or significance test for a difference between two
 coefficients, you can store an arbitrary string using:
 
-    append_to_file using table_data.csv, s("app2_ftest, 0.35")
+    append_to_file using sample_table.csv, s("treatment2_ftest, 0.35")
 
 ### Step 3
 
 Finally, use `table_from_tpl` to transfer the estimates into the LaTeX
 template (via Python):
 
-    table_from_tpl, t(two_panel.tex) r(table_data.csv) o(output_table.tex)
+    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) 
 
 t = template file, r = replacement data file, o = output file
 
-The easiest way to get this running may be to work through the example
-files `table_tpl.do` and `two_panel.tex` which create a contrived two
-panel output table from a system dataset.
+You can also optionally add or suppress significance stars from the output file with the following two commands:
+
+    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) add_stars
+    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) drop_stars
+
+This operates by replacing beta with starbeta in the template (or vice
+versa) when generating the output file. If you have stars on some
+other parameter, you will need to customize this.
+
+## EXAMPLE
+
+Place all stata-tex files in the same folder, including the sample
+files: `treatment_tpl.tex` is a sample latex template, and
+`sample_table.csv` contains data generated with `store_est_tpl`. Run the following command:
+
+    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) 
+
+`output_table.tex` should contain a template with data filled in from
+`sample_table.csv`.
 
 ## LIMITATIONS
 
@@ -102,12 +122,12 @@ limitation of having a totally customizable table template.
 appearance will be used.  So you need to delete the output file each
 time you generate data. (It would probably be better to use the last
 appearance, then you could just keep adding to the same estimate data
-file.)
+file. Someday we will make this change.)
 
 ## INSTALLING
 
 table_from_tpl() needs to find table_from_tpl.py either in the current
-folder, or in the folder specified by the global $PYTHONPATH.
+folder, or in the folder specified by the Stata global macro $PYTHONPATH.
 
 This has been tested most thoroughly with Python 2.7. If you encounter
 difficulties with other versions of Python, please let me know.
