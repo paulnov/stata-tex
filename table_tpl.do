@@ -30,3 +30,11 @@ table_from_tpl, t(two_panel.tex) r(`data') o(output_table.tex)
 
 /* show the result */
 cat output_table.tex
+
+
+reg mpg treatment if sample == 1
+store_est_tpl using table-data.csv, coef(treatment) name(treatment1) all
+
+reg mpg treatment if sample == 2
+store_est_tpl using table-data.csv, coef(treatment) name(treatment2) all
+

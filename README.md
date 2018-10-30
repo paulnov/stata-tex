@@ -3,7 +3,7 @@
 It's often necessary to produce an output table that doesn't fit any
 of the format provided by the standard tools outreg, esttab, etc..
 Some examples: 
-- Showing p-values for differences of coefficients 
+- Showing p-values for linear combinations of coefficients 
 - Putting certain coefficients in bold 
 - Putting different outcome variables in the same row of a regression table 
 - Multi-panel tables with different formatting in each panel
@@ -25,6 +25,7 @@ parameters.
 - Stata code is much much cleaner
 - Can get LaTeX table looking right without using Stata
 - Easy to copy table templates to new contexts
+- One regression can create estimates that are used in many tables
 
 ## HOW TO USE
 
@@ -43,7 +44,8 @@ estimate, and `treatment1_se` for the standard error. Notice that estimates
 in the second and forth column are customized to be in bold face.
 
 Finish this table (i.e. with `tabular` etc.), until it compiles in
-LaTeX in the format you want.
+LaTeX in the format you want. The package includes a very simple
+sample table in `output_table.tex`.
 
 ### Step 2
 
@@ -69,7 +71,7 @@ p<0.01. e.g. `beta` contains `0.06`, and `starbeta` contains `0.06**`.
 
 `store_est_tpl` takes an optional `format()` parameter that lets you
 specify a different format for the coefficient and standard error
-(e.g. `"%5.2f"` -- the default is 3 decimal points).  p-values and r2
+(e.g. `"%5.2f"`). The default is 3 decimal points.  p-values and r2
 always have 2 decimal points.
 
 The `all` parameter is short for `beta se n p r2` -- the latter let
@@ -83,7 +85,11 @@ store some other value in this file, e.g. a p-value from an F test or
 significance test for a difference between two coefficients, you can
 store an arbitrary string using:
 
-    append_to_file using sample_table.csv, s("treatment2_ftest, 0.35")
+    insert_into_file using sample_table.csv, key(treatment2_ftest) value(0.35) format(%5.2f)
+
+Note that both `store_est_tpl` and `insert_into_file` will replace any
+line in the CSV file that currently has the same coefficient
+name.
 
 ### Step 3
 
@@ -101,30 +107,32 @@ You can also optionally add or suppress significance stars from the output file 
 
 This operates by replacing beta with starbeta in the template (or vice
 versa) when generating the output file. If you have stars on some
-other parameter, you will need to customize this.
+coefficent name other than beta, you will need to create custom
+templates with and without stars.
 
 ## EXAMPLE
 
 Place all stata-tex files in the same folder, including the sample
-files: `treatment_tpl.tex` is a sample latex template, and
-`sample_table.csv` contains data generated with `store_est_tpl`. Run the following command:
+template `treatment_tpl.tex`.  `test.do` provides a complete example
+using the standard `auto` dataset. It creates two output files:
+`output_table.tex` and `output_table_no_stars.tex`.
 
-    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) 
-
-`output_table.tex` should contain a template with data filled in from
-`sample_table.csv`.
-
-## LIMITATIONS
+## LIMITATIONS / KNOWN ISSUES
 
 - Unlike `outreg`, `estout`, etc., you can't add and remove columns from
 these tables without modifying the LaTeX template. This is an inherent
 limitation of having a totally customizable table template.
 
-- If a placeholder appears multiple times in the output file, the first
-appearance will be used.  So you need to delete the output file each
-time you generate data. (It would probably be better to use the last
-appearance, then you could just keep adding to the same estimate data
-file. Someday we will make this change.)
+- If a placeholder appears multiple times in the output file, only the
+first appearance will be used. However, if you are only using
+`insert_into_file` and `store_est_tpl`, you should not run into this
+as these programs replace existing lines with the same parameter
+values (as of 10/30/2018).
+
+- The templates don't compile themselves, because latex interprets the
+  replacement markers `$$` and `_` as special characters. I couldn't
+  find any clean way around this, but let me know if you have a better
+  idea for how to tag replacement strings.
 
 ## INSTALLING
 

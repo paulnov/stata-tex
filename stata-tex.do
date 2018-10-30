@@ -20,38 +20,38 @@ prog def store_est_tpl
 
   /* manage beta */
   if !mi("`beta'") {
+
+    /* store beta in the desired format */
     local b3:  di `format' _b["`coef'"]
     test `coef' = 0
-
+    local pvalue = `r(p)'
     /* write p value (only makes sense if beta also specified) */
     if !mi("`p'") {
-      local p2: di %5.2f `r(p)'
-      append_to_file using `using', s("`name'_p,`p2'")
+      insert_into_file using `using', key("`name'_p") value(" `pvalue'") format("%5.2f")
     }
 
     /* write beta to file */
-    append_to_file using `using', s("`name'_beta, `b3'")
+    insert_into_file using `using', key("`name'_beta") value(" `b3'") format("`format'")
 
     /* count stars on the p and create starbeta */
-    count_stars, p(`r(p)')
-    append_to_file using `using', s("`name'_starbeta, `b3'`r(stars)'")
+    count_stars, p(`pvalue')
+    insert_into_file using `using', key("`name'_starbeta") value(" `b3'`r(stars)'") format("`format'")
   }
 
   /* manage se */
   if !mi("`se'") {
     local se3:  di `format' _se["`coef'"]
-    append_to_file using `using', s("`name'_se, `se3'")
+    insert_into_file using `using', key("`name'_se") value(" `se3'")
   }
   
   /* manage n */
   if !mi("`n'") {
-    append_to_file using `using', s("`name'_n, `e(N)'")
+    insert_into_file using `using', key("`name'_n") value(" `e(N)'") format("%1.0f")
   }
 
   /* manage r2 */
   if !mi("`r2'") {
-    local r2:  di %5.2f `e(r2)'
-    append_to_file using `using', s("`name'_r2, `r2'")
+    insert_into_file using `using', key("`name'_r2") value(" `e(r2)'") format("%5.2f")
   }
 }
 end
@@ -65,6 +65,8 @@ prog def store_val_tpl
 {
   syntax using/,  Name(string) Value(string) [Format(string)]
 
+  di `""store_val_tpl, name value format" is deprecated -- please use "insert_into_file, key value format" instead"'
+  
   /* set default format if not specified */
   if mi("`format'") local format "%6.3f"
 
@@ -162,6 +164,109 @@ prog def append_to_file
 }
 end
 /* *********** END program append_to_file ***************************************** */
+
+/**********************************************************************************/
+/* program insert_into_file : Insert a key-value pair into a file                 */
+/*
+Assume "using" csv file take a key, value format, e.g.:
+
+est1,3.544
+est2,3.234***
+...
+
+"est1" is the key. "3.544" is the value.
+
+Example:
+
+insert_into_file using $tmp/estimates.csv, key(est1) value(3.54493) format(%5.2f)
+
+- if "est1" is not already in estimates file, it will be appended
+- if "est1" is already in estimates file, its value will be replaced with the passed in parameter
+- estimates file will be created if it does not already exist
+
+*/
+  
+/***********************************************************************************/
+cap prog drop insert_into_file
+prog def insert_into_file
+{
+  syntax using/, Key(string) Value(string) [Format(string) verbose]
+
+  /* set default format if not specified */
+  if mi("`format'") local format "%6.3f"
+
+  /* get value in correct format (unless it's a string) */
+  if !mi(real("`value'")) {
+    local value : di `format' `value'
+  }
+  else {
+    local value `value'
+  }
+  
+  /* confirm file handles are closed */
+  cap file close fout
+  cap file close fin
+
+  /* create a temporary file for writing */
+  tempfile tempfile
+  qui file open fout using `tempfile', write replace
+
+  /* if input file doesn't exist, create it and display a notification */
+  cap confirm file `using'
+  if _rc {
+    if !mi("`verbose'") {
+      di "Creating new file `using'..."
+    }
+  }
+
+  /* else, open the input file and read the first line */
+  else {
+    file open fin using `using', read
+
+    /* read the first line */
+    file read fin line
+  }
+
+  /* store a flag indicating whether we found the line or not */
+  local found 0
+  
+  /* loop over all lines of the file */
+  while r(eof) == 0 {
+
+    /* check if line matches the current key */
+    if regexm("`line'", "^`key',") {
+
+      /* if verbose, show what we're replacing  */
+      if !mi("`verbose'") {
+        di `"Replacing "`line'" with "`key',`value'"..."'
+      }
+      local found 1
+      
+      /* replace the line with key,value */
+      local line `key',`value'
+    }
+
+    /* write the line to the output file */
+    file write fout "`line'" _n
+    
+    /* read the next line */
+    file read fin line
+  }
+
+  /* if we didn't find this key, append it to the end */
+  if `found' == 0 {
+    file write fout "`key',`value'" _n
+  }
+  
+  /* close input and output files */
+  cap file close fin
+  file close fout
+  
+  /* copy the temporary file to the `using` filename */
+  copy `tempfile' `using', replace
+}
+end
+/* *********** END program insert_into_file ***************************************** */
 
 /**********************************************************************************/
 /* program count_stars : return a string with the right number of stars           */
