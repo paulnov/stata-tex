@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 from optparse import OptionParser
 
 def parse_options():
@@ -69,7 +70,8 @@ with open(os.path.expanduser(options.replace_path), "r") as f:
 for line in replacements:
 
     # second parameter "1" allows only one split in case there are commas in the replacement string
-    (token, value) = line.split(",", 1)
+    # (token, value) = line.split(",", 1)
+    (token, value) = [re.sub(r'^"|"$', '', x) for x in re.split(r',(?=")', line)]
 
     tpl_lines = tpl_lines.replace("$$%s$$" % (token), value.strip())
 
