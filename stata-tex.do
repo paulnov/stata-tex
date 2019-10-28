@@ -234,7 +234,7 @@ prog def insert_into_file
   while r(eof) == 0 {
 
     /* check if line matches the current key */
-    if regexm("`line'", "^`key',") {
+    if regexm(`"`line'"', `"^`key',"') {
 
       /* if verbose, show what we're replacing  */
       if !mi("`verbose'") {
@@ -243,11 +243,11 @@ prog def insert_into_file
       local found 1
       
       /* replace the line with key,value */
-      local line `key',`value'
+      local line `key',"`value'"
     }
 
     /* write the line to the output file */
-    file write fout "`line'" _n
+    file write fout `"`line'"' _n
     
     /* read the next line */
     file read fin line
@@ -255,7 +255,7 @@ prog def insert_into_file
 
   /* if we didn't find this key, append it to the end */
   if `found' == 0 {
-    file write fout "`key',`value'" _n
+    file write fout `"`key',"`value'""' _n
   }
   
   /* close input and output files */
