@@ -234,7 +234,7 @@ prog def insert_into_file
   while r(eof) == 0 {
 
     /* check if line matches the current key */
-    if regexm("`line'", "^`key'|") {
+    if regexm("`line'", "^`key',") {
 
       /* if verbose, show what we're replacing  */
       if !mi("`verbose'") {
