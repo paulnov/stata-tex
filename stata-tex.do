@@ -79,7 +79,7 @@ prog def store_val_tpl
   }
 
   /* write line to file */
-  append_to_file using `using', s("`name',`v'")
+  append_to_file using `using', s("`name'|`v'")
 }
 end
 /* *********** END program store_val_tpl ***************************************** */
@@ -168,17 +168,17 @@ end
 /**********************************************************************************/
 /* program insert_into_file : Insert a key-value pair into a file                 */
 /*
-Assume "using" csv file take a key, value format, e.g.:
+Assume "using" txt file take a key, value format, e.g.:
 
-est1,3.544
-est2,3.234***
+est1|3.544
+est2|3.234***
 ...
 
 "est1" is the key. "3.544" is the value.
 
 Example:
 
-insert_into_file using $tmp/estimates.csv, key(est1) value(3.54493) format(%5.2f)
+insert_into_file using $tmp/estimates.txt, key(est1) value(3.54493) format(%5.2f)
 
 - if "est1" is not already in estimates file, it will be appended
 - if "est1" is already in estimates file, its value will be replaced with the passed in parameter
@@ -238,12 +238,12 @@ prog def insert_into_file
 
       /* if verbose, show what we're replacing  */
       if !mi("`verbose'") {
-        di `"Replacing "`line'" with "`key',`value'"..."'
+        di `"Replacing "`line'" with "`key'|`value'"..."'
       }
       local found 1
       
       /* replace the line with key,value */
-      local line `key',`value'
+      local line `key'|`value'
     }
 
     /* write the line to the output file */
@@ -255,7 +255,7 @@ prog def insert_into_file
 
   /* if we didn't find this key, append it to the end */
   if `found' == 0 {
-    file write fout "`key',`value'" _n
+    file write fout "`key'|`value'" _n
   }
   
   /* close input and output files */

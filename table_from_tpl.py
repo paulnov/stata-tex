@@ -68,8 +68,8 @@ with open(os.path.expanduser(options.replace_path), "r") as f:
 # loop over replacement line
 for line in replacements:
 
-    # second parameter "1" allows only one split in case there are commas in the replacement string
-    (token, value) = line.split(",", 1)
+    # second parameter "1" uses only one split in case there are occurences of the delimiter in the string
+    (token, value) = line.split("|", 1)
 
     tpl_lines = tpl_lines.replace("$$%s$$" % (token), value.strip())
 

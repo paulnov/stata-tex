@@ -50,20 +50,20 @@ sample table in `output_table.tex`.
 ### Step 2
 
 In Stata, use the post-estimation command `store_est_tpl` (included in
-the `stata-tex` package), to generate a CSV file with all the estimation results:
+the `stata-tex` package), to generate a text file with all the estimation results:
 
     reg mpg t [...]
-    store_est_tpl using sample_table.csv, coef(t) name(treatment2) all
+    store_est_tpl using sample_table.txt, coef(t) name(treatment2) all
 
-This will append a block to `sample_table.csv` containing the
+This will append a block to `sample_table.txt` containing the
 following lines (with example numbers):
 
-    treatment2_p, 0.00
-    treatment2_beta, 0.009
-    treatment2_starbeta, 0.009***
-    treatment2_se, 0.001
-    treatment2_n, 147143
-    treatment2_r2, 0.00
+    treatment2_p|0.00
+    treatment2_beta|0.009
+    treatment2_starbeta|0.009***
+    treatment2_se|0.001
+    treatment2_n|147143
+    treatment2_r2|0.00
 
 Note that the placeholder `beta` holds just the beta coefficient,
 while `starbeta` calculates a p-value and shows stars for p<0.1, p<0.05,
@@ -85,10 +85,10 @@ store some other value in this file, e.g. a p-value from an F test or
 significance test for a difference between two coefficients, you can
 store an arbitrary string using:
 
-    insert_into_file using sample_table.csv, key(treatment2_ftest) value(0.35) format(%5.2f)
+    insert_into_file using sample_table.txt, key(treatment2_ftest) value(0.35) format(%5.2f)
 
 Note that both `store_est_tpl` and `insert_into_file` will replace any
-line in the CSV file that currently has the same coefficient
+line in the text file that currently has the same coefficient
 name.
 
 ### Step 3
@@ -96,14 +96,14 @@ name.
 Finally, use `table_from_tpl` to transfer the estimates into the LaTeX
 template (via Python):
 
-    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) 
+    table_from_tpl, t(treatment_tpl.tex) r(sample_table.txt) o(output_table.tex) 
 
 t = template file, r = replacement data file, o = output file
 
 You can also optionally add or suppress significance stars from the output file with the following two commands:
 
-    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) add_stars
-    table_from_tpl, t(treatment_tpl.tex) r(sample_table.csv) o(output_table.tex) drop_stars
+    table_from_tpl, t(treatment_tpl.tex) r(sample_table.txt) o(output_table.tex) add_stars
+    table_from_tpl, t(treatment_tpl.tex) r(sample_table.txt) o(output_table.tex) drop_stars
 
 This operates by replacing beta with starbeta in the template (or vice
 versa) when generating the output file. If you have stars on some
