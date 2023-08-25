@@ -79,7 +79,7 @@ prog def store_val_tpl
   }
 
   /* write line to file */
-  append_to_file using `using', s("`name',`v'")
+  append_to_file using `using', s("`name'|`v'")
 }
 end
 /* *********** END program store_val_tpl ***************************************** */
